@@ -23,7 +23,39 @@ const getContactById = async (req, res, next) => {
 
     const contact = parsedContactsList.find(({ id }) => id === contactId)
 
+    if (!contact) {
+      res.status(404).json({ message: 'Not found' })
+    }
+
     res.status(200).json(contact)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const addContact = async (req, res, next) => {
+  if (!req.body) {
+    return res.status(400).json({ message: 'missing required name field' })
+  }
+
+  const { name, email, phone } = req.body
+
+  const newContact = {
+    id: shortid.generate(),
+    name,
+    email,
+    phone,
+  }
+
+  try {
+    const contactsList = await fs.readFile(contacts)
+    const parsedContactsList = JSON.parse(contactsList)
+
+    const newContactsList = [...parsedContactsList, newContact]
+
+    fs.writeFile(contacts, JSON.stringify(newContactsList, null, '\t'), 'utf8')
+
+    res.status(201).json({ contact: newContact, status: 'success' })
   } catch (error) {
     next(error)
   }
@@ -36,51 +68,25 @@ const removeContact = async (req, res, next) => {
     const contactsList = await fs.readFile(contacts)
     const parsedContactsList = JSON.parse(contactsList)
 
-    const newContactsList = [
-      ...parsedContactsList.filter(({ id }) => id !== contactId)
-    ]
+    if (!parsedContactsList.find(({ id }) => id === contactId)) {
+      return res.status(404).json({ message: 'Not found' })
+    }
 
-    fs.writeFile(
-      contacts,
-      JSON.stringify(newContactsList, null, '\t'),
-      'utf8'
-    )
+    const newContactList = parsedContactsList.filter(({ id }) => id !== contactId)
 
-    res.status(200).json({ status: `contact with id:'${contactId}' is deleted` })
-  } catch (error) {
-    next(error)
-  }
-}
+    fs.writeFile(contacts, JSON.stringify(newContactList, null, '\t'), 'utf8')
 
-const addContact = async (req, res, next) => {
-  const { name, email, phone } = req.body
-
-  const newContact = {
-    id: shortid.generate(),
-    name,
-    email,
-    phone
-  }
-
-  try {
-    const contactsList = await fs.readFile(contacts)
-    const parsedContactsList = JSON.parse(contactsList)
-
-    const newContactsList = [...parsedContactsList, newContact]
-
-    fs.writeFile(
-      contacts,
-      JSON.stringify(newContactsList, null, '\t'),
-      'utf8'
-    )
-
-    res.status(201).json({ contact: newContact, status: 'success' })
+    res.status(200).json({ message: 'contact deleted' })
   } catch (error) {
     next(error)
   }
 }
 
 const updateContact = async (req, res, next) => {
+  if (!req.body) {
+    return res.status(400).json({ message: 'missing fields' })
+  }
+
   const { name, email, phone } = req.body
   const contactId = Number(req.params.contactId)
 
@@ -88,7 +94,11 @@ const updateContact = async (req, res, next) => {
     const contactsList = await fs.readFile(contacts)
     const parsedContactsList = JSON.parse(contactsList)
 
-    parsedContactsList.forEach((contact) => {
+    if (!parsedContactsList.find(({ id }) => id === contactId)) {
+      return res.status(404).json({ message: 'Not found' })
+    }
+
+    parsedContactsList.forEach(contact => {
       if (contact.id === contactId) {
         if (name) {
           contact.name = name
@@ -102,13 +112,9 @@ const updateContact = async (req, res, next) => {
       }
     })
 
-    fs.writeFile(
-      contacts,
-      JSON.stringify(parsedContactsList, null, '\t'),
-      'utf8'
-    )
+    fs.writeFile(contacts, JSON.stringify(parsedContactsList, null, '\t'), 'utf8')
 
-    res.status(201).json({ status: 'success' })
+    res.status(200).json({ contactId, name, email, phone })
   } catch (error) {
     next(error)
   }
@@ -119,5 +125,5 @@ module.exports = {
   getContactById,
   removeContact,
   addContact,
-  updateContact
+  updateContact,
 }
