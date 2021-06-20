@@ -1,29 +1,21 @@
 const { Contact } = require('../db/contactShema')
 
 const listContacts = async (req, res, next) => {
-  try {
-    const contacts = await Contact.find()
+  const contacts = await Contact.find()
 
-    res.status(200).json({ contacts, status: 'success' })
-  } catch (error) {
-    next(error)
-  }
+  res.status(200).json({ contacts, status: 'success' })
 }
 
 const getContactById = async (req, res, next) => {
   const contactId = req.params.contactId
 
-  try {
-    const contact = await Contact.findById(contactId)
+  const contact = await Contact.findById(contactId)
 
-    if (!contact) {
-      res.status(404).json({ message: 'Not found' })
-    }
-
-    res.status(200).json(contact)
-  } catch (error) {
-    next(error)
+  if (!contact) {
+    res.status(404).json({ message: 'Not found' })
   }
+
+  res.status(200).json(contact)
 }
 
 const addContact = async (req, res, next) => {
@@ -39,26 +31,18 @@ const addContact = async (req, res, next) => {
     phone,
   }
 
-  try {
-    const contact = new Contact(newContact)
-    await contact.save()
+  const contact = new Contact(newContact)
+  await contact.save()
 
-    res.status(201).json({ contact: newContact, status: 'success' })
-  } catch (error) {
-    next(error)
-  }
+  res.status(201).json({ contact: newContact, status: 'success' })
 }
 
 const removeContact = async (req, res, next) => {
   const contactId = req.params.contactId
 
-  try {
-    await Contact.findByIdAndRemove(contactId)
+  await Contact.findByIdAndRemove(contactId)
 
-    res.status(200).json({ message: 'contact deleted' })
-  } catch (error) {
-    next(error)
-  }
+  res.status(200).json({ message: 'contact deleted' })
 }
 
 const updateContact = async (req, res, next) => {
@@ -69,14 +53,10 @@ const updateContact = async (req, res, next) => {
   const { name, email, phone } = req.body
   const contactId = req.params.contactId
 
-  try {
-    await Contact.findByIdAndUpdate(contactId, { $set: { name, email, phone } })
+  await Contact.findByIdAndUpdate(contactId, { $set: { name, email, phone } })
 
-    const updatedContact = await Contact.findById(contactId)
-    res.status(200).json(updatedContact)
-  } catch (error) {
-    next(error)
-  }
+  const updatedContact = await Contact.findById(contactId)
+  res.status(200).json(updatedContact)
 }
 
 const updateStatusContact = async (req, res, next) => {
@@ -87,14 +67,10 @@ const updateStatusContact = async (req, res, next) => {
   const { favorite } = req.body
   const contactId = req.params.contactId
 
-  try {
-    await Contact.findByIdAndUpdate(contactId, { $set: { favorite } })
+  await Contact.findByIdAndUpdate(contactId, { $set: { favorite } })
 
-    const updatedContact = await Contact.findById(contactId)
-    res.status(200).json(updatedContact)
-  } catch (error) {
-    next(error)
-  }
+  const updatedContact = await Contact.findById(contactId)
+  res.status(200).json(updatedContact)
 }
 
 module.exports = {
