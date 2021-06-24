@@ -51,11 +51,11 @@ const updateContact = async (req, res, next) => {
   }
 
   const { name, email, phone } = req.body
+
   const contactId = req.params.contactId
 
-  await Contact.findByIdAndUpdate(contactId, { $set: { name, email, phone } })
+  const updatedContact = await Contact.findByIdAndUpdate(contactId, { $set: { name, email, phone } }, { new: true })
 
-  const updatedContact = await Contact.findById(contactId)
   res.status(200).json(updatedContact)
 }
 
@@ -67,9 +67,8 @@ const updateStatusContact = async (req, res, next) => {
   const { favorite } = req.body
   const contactId = req.params.contactId
 
-  await Contact.findByIdAndUpdate(contactId, { $set: { favorite } })
+  const updatedContact = await Contact.findByIdAndUpdate(contactId, { $set: { favorite } }, { new: true })
 
-  const updatedContact = await Contact.findById(contactId)
   res.status(200).json(updatedContact)
 }
 
