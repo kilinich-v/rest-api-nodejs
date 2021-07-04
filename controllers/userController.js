@@ -37,28 +37,27 @@ const currentUserController = async (req, res) => {
   res.status(200).json({ email, subscription })
 }
 
-const uploadController = async (req, res, next) => {
-  const { _id } = req.user
-
+const uploadController = async (req, res) => {
   if (req.file) {
+    const { _id } = req.user
     const { file } = req
 
     const img = await jimp.read(file.path)
-
-    console.log(file.path)
-
-    img
+    console.log(__dirname)
+    await img
       .autocrop()
-      .cover(256, 256, jimp.HORIZONTAL_ALIGN_CENTER || jimp.VERTICAL_ALIGN_MIDDLE)
+      .cover(250, 250, jimp.HORIZONTAL_ALIGN_CENTER || jimp.VERTICAL_ALIGN_MIDDLE)
       .writeAsync(file.path)
 
-    await fs.rename(file.path, path.resolve(process.env.AVATARS_DIR, file.filename))
+    await fs.rename(file.path, path.join(process.env.AVATARS_DIR, file.filename), err => {
+      if (err) throw err
+    })
 
-    const newAvatarURL = path.join(process.env.AVATARS_DIR, file.filename)
+    const newAvatarURL = `${process.env.AVATARS_DIR}/${file.filename}`
 
     updateAvatar(_id, newAvatarURL)
 
-    res.json({ status: 'success' })
+    res.status(200).json({ status: 'success' })
   }
 }
 
