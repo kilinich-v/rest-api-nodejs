@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
+const gravatar = require('gravatar')
 
 const { User } = require('../db/userShema')
 const { NotAuthorizedError, RegistrationError } = require('../helpers/errors')
@@ -13,9 +14,12 @@ const registration = async (email, password) => {
     throw new RegistrationError('Email in use')
   }
 
+  const avatarURL = gravatar.url(email)
+
   const user = new User({
     email,
     password,
+    avatarURL,
   })
   await user.save()
 
@@ -52,9 +56,16 @@ const currentUser = async _id => {
   return user
 }
 
+const updateAvatar = async (_id, newURL) => {
+  const user = await User.findOneAndUpdate(_id, { avatarURL: newURL })
+
+  return user
+}
+
 module.exports = {
   registration,
   login,
   logout,
   currentUser,
+  updateAvatar,
 }
