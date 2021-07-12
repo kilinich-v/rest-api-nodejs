@@ -33,10 +33,18 @@ class RegistrationError extends ApiError {
   }
 }
 
+class NotFoundError extends ApiError {
+  constructor(message) {
+    super(message)
+    this.status = 404
+  }
+}
+
 module.exports = {
   ApiError,
   ValidationError,
   WrongParametersError,
   NotAuthorizedError,
   RegistrationError,
+  NotFoundError,
 }

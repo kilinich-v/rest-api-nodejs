@@ -1,7 +1,15 @@
 const jimp = require('jimp')
 const path = require('path')
 const fs = require('fs')
-const { registration, login, logout, currentUser, updateAvatar } = require('../services/usersService')
+
+const {
+  registration,
+  registrationVerification,
+  login,
+  logout,
+  currentUser,
+  updateAvatar,
+} = require('../services/usersService')
 
 const registrationController = async (req, res) => {
   const { email, password } = req.body
@@ -9,6 +17,14 @@ const registrationController = async (req, res) => {
   const { subscription } = await registration(email, password)
 
   res.status(201).json({ user: { email, subscription } })
+}
+
+const registrationVerificationController = async (req, res) => {
+  const { verificationToken } = req.params
+
+  await registrationVerification(verificationToken)
+
+  res.status(200).json({ message: 'Verification successful' })
 }
 
 const loginController = async (req, res) => {
@@ -63,6 +79,7 @@ const uploadController = async (req, res) => {
 
 module.exports = {
   registrationController,
+  registrationVerificationController,
   loginController,
   logoutController,
   currentUserController,

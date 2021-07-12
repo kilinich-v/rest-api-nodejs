@@ -2,6 +2,7 @@ const express = require('express')
 
 const {
   registrationController,
+  registrationVerificationController,
   loginController,
   logoutController,
   currentUserController,
@@ -18,5 +19,6 @@ router.post('/login', asyncErrorsWrapper(loginController))
 router.post('/logout', authMiddleware, asyncErrorsWrapper(logoutController))
 router.post('/current', authMiddleware, asyncErrorsWrapper(currentUserController))
 router.patch('/avatars', authMiddleware, uploadMiddleware.single('avatar'), asyncErrorsWrapper(uploadController))
+router.get('/verify/:verificationToken', asyncErrorsWrapper(registrationVerificationController))
 
 module.exports = router
